@@ -28,6 +28,11 @@ header h1 {
   margin-bottom: 10px;
 }
 
+#auth-status {
+  font-size: 0.95rem;
+  opacity: 0.9;
+}
+
 main {
   display: flex;
   flex-wrap: wrap;
@@ -190,6 +195,12 @@ button:hover {
 
 .hidden {
   display: none;
+}
+
+.demo-hint {
+  margin-top: 12px;
+  color: #666;
+  font-size: 0.9rem;
 }
 
 footer {

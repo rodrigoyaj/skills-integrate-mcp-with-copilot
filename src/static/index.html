@@ -10,9 +10,28 @@
     <header>
       <h1>Mergington High School</h1>
       <h2>Extracurricular Activities</h2>
+      <div id="auth-status">Not signed in</div>
     </header>
 
     <main>
+      <section id="auth-container">
+        <h3>Sign In</h3>
+        <form id="login-form">
+          <div class="form-group">
+            <label for="login-email">Email:</label>
+            <input type="email" id="login-email" required placeholder="you@mergington.edu" />
+          </div>
+          <div class="form-group">
+            <label for="login-password">Password:</label>
+            <input type="password" id="login-password" required minlength="8" />
+          </div>
+          <button type="submit">Sign In</button>
+        </form>
+        <button id="logout-button" class="hidden" type="button">Sign Out</button>
+        <p class="demo-hint">Demo teacher: teacher@mergington.edu / teacherpass</p>
+        <div id="auth-message" class="hidden"></div>
+      </section>
+
       <section id="activities-container">
         <h3>Available Activities</h3>
         <div id="activities-list">
@@ -21,7 +40,7 @@
         </div>
       </section>
 
-      <section id="signup-container">
+      <section id="signup-container" class="hidden">
         <h3>Sign Up for an Activity</h3>
         <form id="signup-form">
           <div class="form-group">

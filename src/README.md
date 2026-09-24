@@ -5,7 +5,8 @@ A super simple FastAPI application that allows students to view and sign up for 
 ## Features
 
 - View all available extracurricular activities
-- Sign up for activities
+- Sign up for activities with authenticated accounts
+- Role-based enrollment controls for students, parents, teachers, coordinators, and admins
 
 ## Getting Started
 
@@ -30,7 +31,12 @@ A super simple FastAPI application that allows students to view and sign up for 
 | Method | Endpoint                                                          | Description                                                         |
 | ------ | ----------------------------------------------------------------- | ------------------------------------------------------------------- |
 | GET    | `/activities`                                                     | Get all activities with their details and current participant count |
-| POST   | `/activities/{activity_name}/signup?email=student@mergington.edu` | Sign up for an activity                                             |
+| POST   | `/auth/register`                                                   | Create a student or parent account                                  |
+| POST   | `/auth/login`                                                      | Log in and receive a bearer token                                   |
+| POST   | `/auth/logout`                                                     | Revoke the current bearer token                                     |
+| GET    | `/auth/me`                                                         | Get the current user's email and role                               |
+| POST   | `/activities/{activity_name}/signup?email=student@mergington.edu` | Sign up for an activity (authentication required)                  |
+| DELETE | `/activities/{activity_name}/unregister?email=student@mergington.edu` | Unregister (authentication required)                             |
 
 ## Data Model
 
@@ -47,4 +53,4 @@ The application uses a simple data model with meaningful identifiers:
    - Name
    - Grade level
 
-All data is stored in memory, which means data will be reset when the server restarts.
+All data, users, and sessions are stored in memory, which means they will be reset when the server restarts. A demo teacher account is `teacher@mergington.edu` / `teacherpass`.

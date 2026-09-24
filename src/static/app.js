@@ -3,6 +3,23 @@ document.addEventListener("DOMContentLoaded", () => {
   const activitySelect = document.getElementById("activity");
   const signupForm = document.getElementById("signup-form");
   const messageDiv = document.getElementById("message");
+  const authMessageDiv = document.getElementById("auth-message");
+  const authStatus = document.getElementById("auth-status");
+  const loginForm = document.getElementById("login-form");
+  const logoutButton = document.getElementById("logout-button");
+  const signupContainer = document.getElementById("signup-container");
+  let currentUser = null;
+
+  function authHeaders() {
+    const token = localStorage.getItem("access_token");
+    return token ? { Authorization: `Bearer ${token}` } : {};
+  }
+
+  function showAuthMessage(text, className) {
+    authMessageDiv.textContent = text;
+    authMessageDiv.className = className;
+    authMessageDiv.classList.remove("hidden");
+  }
 
   // Function to fetch activities from API
   async function fetchActivities() {
@@ -29,8 +46,11 @@ document.addEventListener("DOMContentLoaded", () => {
               <ul class="participants-list">
                 ${details.participants
                   .map(
-                    (email) =>
-                      `<li><span class="participant-email">${email}</span><button class="delete-btn" data-activity="${name}" data-email="${email}">❌</button></li>`
+                    (email) => `<li><span class="participant-email">${email}</span>${
+                      currentUser && ["teacher", "coordinator", "admin"].includes(currentUser.role)
+                ? `<button class="delete-btn" data-activity="${name}" data-email="${email}">❌</button>`
+                : ""
+                    }</li>`
                   )
                   .join("")}
               </ul>
@@ -80,6 +100,7 @@ document.addEventListener("DOMContentLoaded", () => {
         )}/unregister?email=${encodeURIComponent(email)}`,
         {
           method: "DELETE",
+          headers: authHeaders(),
         }
       );
 
@@ -124,6 +145,7 @@ document.addEventListener("DOMContentLoaded", () => {
         )}/signup?email=${encodeURIComponent(email)}`,
         {
           method: "POST",
+          headers: authHeaders(),
         }
       );
 
@@ -153,6 +175,47 @@ document.addEventListener("DOMContentLoaded", () => {
       messageDiv.classList.remove("hidden");
       console.error("Error signing up:", error);
     }
+  });
+
+  loginForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    try {
+      const response = await fetch("/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: document.getElementById("login-email").value,
+          password: document.getElementById("login-password").value,
+        }),
+      });
+      const result = await response.json();
+      if (!response.ok) {
+        showAuthMessage(result.detail || "Unable to sign in", "error");
+        return;
+      }
+      localStorage.setItem("access_token", result.access_token);
+      currentUser = result;
+      authStatus.textContent = `Signed in as ${result.email} (${result.role})`;
+      loginForm.classList.add("hidden");
+      logoutButton.classList.remove("hidden");
+      signupContainer.classList.remove("hidden");
+      showAuthMessage("Signed in successfully", "success");
+      fetchActivities();
+    } catch (error) {
+      showAuthMessage("Failed to sign in. Please try again.", "error");
+      console.error("Error signing in:", error);
+    }
+  });
+
+  logoutButton.addEventListener("click", async () => {
+    await fetch("/auth/logout", { method: "POST", headers: authHeaders() });
+    localStorage.removeItem("access_token");
+    currentUser = null;
+    authStatus.textContent = "Not signed in";
+    loginForm.classList.remove("hidden");
+    logoutButton.classList.add("hidden");
+    signupContainer.classList.add("hidden");
+    fetchActivities();
   });
 
   // Initialize app
